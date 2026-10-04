@@ -3,13 +3,13 @@ import React, { useState, useEffect } from 'react';
 // 診間對應清單 (對齊班表圖片欄位)
 const CLINIC_ROOMS = [
   '221', '222', 'M226', 'M227', 'M228', 'M229', 'M241', '239', '243', '汀州', '特需',
-  '謝約診(236)', '葉約診(228)', '吳約診(241)', '江約診(229)', '趙約診(226)', '實習門診分組', '單週會診', '備註'
+  '謝順診(235)', '葉順診(226)', '吳順診(241)', '江順診(229)', '趙順診(226)', '實習門診分組', '單週會診', '備註'
 ];
 
 // 預設時段
 const TIME_SLOTS = ['上午', '下午', '晚班'];
 
-// 初始示範資料（含已修正人名）
+// 初始預設資料 (範例)
 const INITIAL_SCHEDULES = [
   { id: '1', date: '2026-10-01', timeSlot: '上午', room: '221', doctor: '張耀元', note: '' },
   { id: '2', date: '2026-10-01', timeSlot: '下午', room: '221', doctor: '陳冠衡', note: '' },
@@ -30,7 +30,7 @@ export default function App() {
   const [note, setNote] = useState('');
   const [activeTab, setActiveTab] = useState('matrix'); // 'matrix' 或 'calendar'
 
-  // 自動蒐集所有曾輸入過的醫師姓名，作為快速下拉選單
+  // 自動蒐集所有曾輸入過的醫師姓名，作為快速選擇清單
   const knownDoctors = Array.from(
     new Set(['江合笙', '張耀元', '陳冠衡', ...schedules.map((s) => s.doctor).filter(Boolean)])
   );
@@ -39,7 +39,7 @@ export default function App() {
     localStorage.setItem('clinic_schedules', JSON.stringify(schedules));
   }, [schedules]);
 
-  // 新增/修改預約
+  // 新增 / 修改預約
   const handleSave = (e) => {
     e.preventDefault();
     if (!doctorName.trim()) return alert('請輸入醫師/人員姓名');
