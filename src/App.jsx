@@ -1,20 +1,20 @@
 import React, { useState, useEffect } from 'react';
 
-// 診間對應清單 (對齊班表圖片欄位)
+// 診間對應清單
 const CLINIC_ROOMS = [
   '221', '222', 'M226', 'M227', 'M228', 'M229', 'M241', '239', '243', '汀州', '特需',
-  '謝約診(236)', '葉約診(228)', '吳約診(241)', '江約診(229)', '趙約診(226)', '實習門診分組', '單週會診', '備註'
+  '謝約診(236)', '葉約診(228)', '吳約診(241)', '江約診(229)', '趙約診(226)', '實習門診分組', '當週會診', '備註'
 ];
 
-// 預設時段
-const TIME_SLOTS = ['上午', '下午', '晚班'];
+// 細分後的時段清單
+const TIME_SLOTS = ['上午一', '上午二', '下午一', '下午二', '晚班'];
 
-// 初始預設資料 (範例)
+// 初始預設範例資料
 const INITIAL_SCHEDULES = [
-  { id: '1', date: '2026-10-01', timeSlot: '上午', room: '221', doctor: '張耀元', note: '' },
-  { id: '2', date: '2026-10-01', timeSlot: '下午', room: '221', doctor: '陳冠衡', note: '' },
-  { id: '3', date: '2026-10-01', timeSlot: '上午', room: 'M229', doctor: '江合笙', note: '' },
-  { id: '4', date: '2026-10-01', timeSlot: '下午', room: 'M229', doctor: '江合笙', note: '' },
+  { id: '1', date: '2026-10-01', timeSlot: '上午一', room: '221', doctor: '張耀元', note: '' },
+  { id: '2', date: '2026-10-01', timeSlot: '下午一', room: '221', doctor: '陳冠衡', note: '' },
+  { id: '3', date: '2026-10-01', timeSlot: '上午一', room: 'M229', doctor: '江合笙', note: '' },
+  { id: '4', date: '2026-10-01', timeSlot: '下午二', room: 'M229', doctor: '江合笙', note: '' },
 ];
 
 export default function App() {
@@ -24,13 +24,13 @@ export default function App() {
     return saved ? JSON.parse(saved) : INITIAL_SCHEDULES;
   });
 
-  const [selectedTimeSlot, setSelectedTimeSlot] = useState('上午');
+  const [selectedTimeSlot, setSelectedTimeSlot] = useState('上午一');
   const [selectedRoom, setSelectedRoom] = useState('221');
   const [doctorName, setDoctorName] = useState('');
   const [note, setNote] = useState('');
-  const [activeTab, setActiveTab] = useState('matrix'); // 'matrix' 或 'calendar'
+  const [activeTab, setActiveTab] = useState('matrix');
 
-  // 自動蒐集所有曾輸入過的醫師姓名，作為快速選擇清單
+  // 自動記憶所有曾輸入過的醫師姓名
   const knownDoctors = Array.from(
     new Set(['江合笙', '張耀元', '陳冠衡', ...schedules.map((s) => s.doctor).filter(Boolean)])
   );
@@ -39,7 +39,6 @@ export default function App() {
     localStorage.setItem('clinic_schedules', JSON.stringify(schedules));
   }, [schedules]);
 
-  // 新增 / 修改預約
   const handleSave = (e) => {
     e.preventDefault();
     if (!doctorName.trim()) return alert('請輸入醫師/人員姓名');
@@ -71,14 +70,12 @@ export default function App() {
     setActiveTab('matrix');
   };
 
-  // 刪除預約
   const handleDelete = (id) => {
     if (confirm('確定要刪除此排班嗎？')) {
       setSchedules(schedules.filter((s) => s.id !== id));
     }
   };
 
-  // 取得特定日期、時段與診間的資料
   const getSchedule = (dateStr, slot, room) => {
     return schedules.find((s) => s.date === dateStr && s.timeSlot === slot && s.room === room);
   };
@@ -139,7 +136,7 @@ export default function App() {
               <table className="w-full text-sm text-center border-collapse">
                 <thead>
                   <tr className="bg-slate-100 border-b border-slate-200 text-slate-700">
-                    <th className="p-3 border-r border-slate-200 min-w-[80px]">時段</th>
+                    <th className="p-3 border-r border-slate-200 min-w-[90px]">時段</th>
                     {CLINIC_ROOMS.map((room) => (
                       <th key={room} className="p-3 border-r border-slate-200 font-semibold min-w-[100px] bg-slate-50">
                         {room}
@@ -194,7 +191,7 @@ export default function App() {
           </section>
         )}
 
-        {/* 自由輸入新增/修改排班表單 */}
+        {/* 新增/登記排班表單 */}
         {activeTab === 'calendar' && (
           <section className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 max-w-xl mx-auto">
             <h2 className="text-lg font-bold text-slate-800 mb-4 pb-2 border-b border-slate-100 flex items-center gap-2">
@@ -244,15 +241,14 @@ export default function App() {
                 </div>
               </div>
 
-              {/* 自由打字 + 歷史快選 */}
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">
-                  值班醫師 / 人員姓名 <span className="text-xs text-slate-400">(可直接打字或選擇)</span>
+                  看診醫師 / 人員姓名 <span className="text-xs text-slate-400">(可自由輸入或點選)</span>
                 </label>
                 <input
                   type="text"
                   list="doctor-list"
-                  placeholder="請輸入或選擇姓名 (例如：江合笙、張耀元)"
+                  placeholder="請輸入姓名 (例如：江合笙、張耀元)"
                   value={doctorName}
                   onChange={(e) => setDoctorName(e.target.value)}
                   className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
@@ -266,10 +262,10 @@ export default function App() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">備註 (選填，如門診備註)</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">備註 (選填)</label>
                 <input
                   type="text"
-                  placeholder="例如：(江門診)、特診等"
+                  placeholder="例如：(江門診)、約診等"
                   value={note}
                   onChange={(e) => setNote(e.target.value)}
                   className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
